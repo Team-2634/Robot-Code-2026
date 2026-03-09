@@ -1,0 +1,24 @@
+
+
+package frc.robot;
+
+import com.ctre.phoenix6.hardware.TalonFX;
+
+
+public class shooter {
+
+    public static TalonFX shooterMotor1 = new TalonFX(8);
+    public static TalonFX shooterMotor2 = new TalonFX(9);
+
+
+    public static void shooterFoward(){
+        shooterMotor1.set(1);
+        shooterMotor2.set(1);
+    }
+
+    public static void shooterReverse(){
+        shooterMotor1.set(-1);
+        shooterMotor2.set(-1);
+    }
+
+}
