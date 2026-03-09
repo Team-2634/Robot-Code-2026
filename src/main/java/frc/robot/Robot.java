@@ -32,7 +32,7 @@ public class Robot extends TimedRobot {
 
   private double ControllerOuput(double input){
 
-        if (Math.abs(input) < 0.25) { //deadzone
+        if (Math.abs(input) < 0.5) { //deadzone
         return 0;
     } 
     return input;
