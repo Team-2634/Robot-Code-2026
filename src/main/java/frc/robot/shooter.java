@@ -16,9 +16,9 @@ public class shooter {
         shooterMotor2.set(1);
     }
 
-    public static void shooterReverse(){
-        shooterMotor1.set(-1);
-        shooterMotor2.set(-1);
+    public static void shooterStop(){
+        shooterMotor1.set(0);
+        shooterMotor2.set(0);
     }
 
 }

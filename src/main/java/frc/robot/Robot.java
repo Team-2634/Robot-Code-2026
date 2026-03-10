@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -31,7 +32,6 @@ public class Robot extends TimedRobot {
   }
 
   private double ControllerOuput(double input){
-
         if (Math.abs(input) < 0.5) { //deadzone
         return 0;
     } 
@@ -62,7 +62,12 @@ public class Robot extends TimedRobot {
 
     m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative, getPeriod());
 
-    
+    if (XboxController(0).getAbutton()){
+      shooterFoward();
+    }    
+    else if (XboxControoler(0).getAbuttonRealesed()){
+      shooterStop();
+    }
 
   }
 
