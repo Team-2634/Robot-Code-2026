@@ -42,14 +42,14 @@ public class Robot extends TimedRobot {
     // Get the x speed. We are inverting this because Xbox controllers return
     // negative values when we push forward.
     final var xSpeed =
-        -m_xspeedLimiter.calculate(ControllerOuput(m_controller.getLeftY()))
+        -m_xspeedLimiter.calculate(ControllerOuput((m_controller.getLeftY())*0.6))
             * Drivetrain.kMaxSpeed;
 
     // Get the y speed or sideways/strafe speed. We are inverting this because
     // we want a positive value when we pull to the left. Xbox controllers
     // return positive values when you pull to the right by default.
     final var ySpeed =
-        -m_yspeedLimiter.calculate(ControllerOuput(m_controller.getLeftX()))
+        -m_yspeedLimiter.calculate(ControllerOuput((m_controller.getLeftX())*0.6))
             * Drivetrain.kMaxSpeed;
 
     // Get the rate of angular rotation. We are inverting this because we want a
@@ -62,14 +62,33 @@ public class Robot extends TimedRobot {
 
     m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative, getPeriod());
 
-    if (XboxController(0).getAbutton()){
-      shooterFoward();
-    }    
-    else if (XboxControoler(0).getAbuttonRealesed()){
-      shooterStop();
+  //Extra Stuff Control
+    
+  //Shooter Control
+    if (m_controller.getAButtonPressed()){
+      shooter.shooterFoward();
+      System.out.println("Shooter On");
     }
+    else if (m_controller.getAButtonReleased()){
+      shooter.shooterStop();
+    }
+    
 
+    //Intake Control
+    if (m_controller.getXButtonPressed()){
+      Intake.intakeFoward();
+      System.out.println("Intake On");
+    }
+    else if(m_controller.getXButtonReleased()){
+      Intake.intakeStop();
+    }
+    
+    //Wheel set
+
+    if (m_controller.getLeftBumperButtonPressed()){
+      m_swerve.straightenWheels(getPeriod());
+    }
+    }
   }
 
 
-}
