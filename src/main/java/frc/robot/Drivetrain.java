@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.studica.frc.AHRS;
 
 
+
 /** Represents a swerve drive style drivetrain. */
 public class Drivetrain {
   public static final double kMaxSpeed = 1.5; // 3 meters per second
@@ -28,7 +29,7 @@ public class Drivetrain {
   private final SwerveModule m_frontLeft = new SwerveModule(1, 0,  0, 1, 0);
   private final SwerveModule m_frontRight = new SwerveModule(7, 6, 4, 5, 1);
   private final SwerveModule m_backLeft = new SwerveModule(4, 5,   8, 9, 4);
-  private final SwerveModule m_backRight = new SwerveModule(3, 2,  12, 13, 2);
+  private final SwerveModule m_backRight = new SwerveModule(3, 2,  3, 2, 2);
 
   //private final AnalogGyro m_gyro = new AnalogGyro(0);
   AHRS navx = new AHRS(AHRS.NavXComType.kMXP_SPI); 
