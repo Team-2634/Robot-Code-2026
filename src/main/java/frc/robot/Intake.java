@@ -12,9 +12,9 @@ public class Intake {
         intakeMotor2.set(1);
     }
 
-    public static void intakeStop(){
-        intakeMotor1.set(0);
-        intakeMotor2.set(0);
+    public static void intakeReverse(){
+        intakeMotor1.set(-1);
+        intakeMotor2.set(-1);
     }
 
 }
