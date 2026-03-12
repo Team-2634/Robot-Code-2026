@@ -9,6 +9,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends TimedRobot {
   private final XboxController m_controller = new XboxController(0);
@@ -27,7 +28,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    driveWithJoystick(true);
+    driveWithJoystick(false);
 
   }
 
@@ -60,7 +61,10 @@ public class Robot extends TimedRobot {
         -m_rotLimiter.calculate(ControllerOuput(m_controller.getRightX()))
             * Drivetrain.kMaxAngularSpeed;
 
+    SmartDashboard.putString("Inputs", xSpeed + " " + ySpeed + " " + rot);
     m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative, getPeriod());
+
+    //Extra Controller Cammands
 
     if (m_controller.getAButton()){
       shooter.shooterFoward();
@@ -69,6 +73,17 @@ public class Robot extends TimedRobot {
       shooter.shooterStop();
     }
 
+
+    if (m_controller.getXButtonPressed()){
+      Intake.intakeFoward();
+    }
+    else if(m_controller.getXButtonReleased()){
+      Intake.intakeStop();
+    }
+
+    if(m_controller.getLeftBumperButtonPressed()){
+      m_swerve.straightenWheels(getPeriod());
+    }
   }
 
 

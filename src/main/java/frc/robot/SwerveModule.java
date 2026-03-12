@@ -38,14 +38,47 @@ public class SwerveModule {
   // Gains are for example purposes only - must be determined for your own robot!
   private final PIDController m_drivePIDController = new PIDController(1, 0, 0);
 
-  // Gains are for example purposes only - must be determined for your own robot!
-  private final ProfiledPIDController m_turningPIDController =
-      new ProfiledPIDController(
-          0.7,
+  // pidControllerKey[pidControllerKey]
+
+  private final ProfiledPIDController[] pidController = {
+    // Front Left
+    new ProfiledPIDController(
+          0.009,// 0.208,
+          0,
+          0, // 0.01,
+          new TrapezoidProfile.Constraints(
+              kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration)),
+    // Front Right
+    new ProfiledPIDController(
+          0,
           0,
           0,
           new TrapezoidProfile.Constraints(
-              kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration)); //kModuleMaxAngularAcceleration
+              kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration)),
+    // Back Left
+    new ProfiledPIDController(
+          0,
+          0,
+          0,
+          new TrapezoidProfile.Constraints(
+              kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration)),
+    // Back Right
+    new ProfiledPIDController(
+          0,
+          0,
+          0,
+          new TrapezoidProfile.Constraints(
+              kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration))
+  };
+
+  // Gains are for example purposes only - must be determined for your own robot!
+  // private final ProfiledPIDController m_turningPIDController =
+  //     new ProfiledPIDController(
+  //         0.15,
+  //         0,
+  //         0,
+  //         new TrapezoidProfile.Constraints(
+  //             kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration)); //kModuleMaxAngularAcceleration
 
   // Gains are for example purposes only - must be determined for your own robot!
   private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(1, 3);
@@ -85,11 +118,17 @@ public class SwerveModule {
     // encoder resolution.
     //m_turningEncoder.setDistancePerPulse(2 * Math.PI / kEncoderResolution);
 
-    m_turningPIDController.setTolerance(Math.PI/4.0);
+    pidController[0].setTolerance(Math.PI/4.0);
+    pidController[1].setTolerance(Math.PI/8.0);
+    pidController[2].setTolerance(Math.PI/8.0);
+    pidController[3].setTolerance(Math.PI/8.0);
 
     // Limit the PID Controller's input range between -pi and pi and set the input
     // to be continuous.
-    m_turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
+    pidController[0].enableContinuousInput(-Math.PI, Math.PI);
+    pidController[1].enableContinuousInput(-Math.PI, Math.PI);
+    pidController[2].enableContinuousInput(-Math.PI, Math.PI);
+    pidController[3].enableContinuousInput(-Math.PI, Math.PI);
 
   }
 
@@ -100,7 +139,7 @@ public class SwerveModule {
    */
   public SwerveModuleState getState() {
     return new SwerveModuleState(
-        m_driveEncoder.getRate(), new Rotation2d(m_turningEncoder.getAbsolutePosition().getValue()));
+        m_driveEncoder.getRate(), new Rotation2d(getEncoderValue() ));
   }
 
   /**
@@ -110,7 +149,7 @@ public class SwerveModule {
    */
   public SwerveModulePosition getPosition() {
     return new SwerveModulePosition(
-        m_driveEncoder.getDistance(), new Rotation2d(m_turningEncoder.getAbsolutePosition().getValue()));
+        m_driveEncoder.getDistance(), new Rotation2d(getEncoderValue()));
   }
 
   /**
@@ -118,8 +157,8 @@ public class SwerveModule {
    *
    * @param desiredState Desired state with speed and angle.
    */
-  public void setDesiredState(SwerveModuleState desiredState, String name) {
-    var encoderRotation = new Rotation2d(m_turningEncoder.getAbsolutePosition().getValue());
+  public void setDesiredState(SwerveModuleState desiredState, int pidControllerKey, String name) {
+    var encoderRotation = new Rotation2d(getEncoderValueDegrees() );
 
     // Optimize the reference state to avoid spinning further than 90 degrees
     desiredState.optimize(encoderRotation);
@@ -136,21 +175,37 @@ public class SwerveModule {
 
     final double driveFeedforward = m_driveFeedforward.calculate(desiredState.speedMetersPerSecond);
 
+
+    SmartDashboard.putNumber(name + " encoder", getEncoderValue()); //  encoder value
+    SmartDashboard.putNumber(name + " rads", getEncoderValue());    // graph encoder value
+
     // Calculate the turning motor output from the turning PID controller.
     final double turnOutput =
-        m_turningPIDController.calculate(
-            m_turningEncoder.getAbsolutePosition().getValueAsDouble(), desiredState.angle.getRadians());
+        pidController[pidControllerKey].calculate(
+            getEncoderValue(), -1); //SET TO desiredState.angle.getRadians() -PI to PI
+            //TEMPORARY HARD CODE FOR TESTING
 
     final double turnFeedforward =
-        m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity);
+        m_turnFeedforward.calculate(pidController[pidControllerKey].getSetpoint().velocity);
 
     m_driveMotor.setVoltage(driveOutput + driveFeedforward);
-    m_turningMotor.setVoltage(turnOutput + turnFeedforward);
+    // m_turningMotor.setVoltage(turnOutput + 0); //0 was turnFeedfoward
+    m_turningMotor.set(turnOutput + 0); //0 was turnFeedfoward
+    //set or setVoltage?
 
-    // SmartDashboard.putNumber(name, m_turningPIDController.getPositionError());
-    SmartDashboard.putNumber(name, m_turningPIDController.getPositionError());
-    SmartDashboard.putNumber(name, m_turningPIDController.getVelocityError());
-    SmartDashboard.putNumber(name, m_turningPIDController.getSetpoint().position);
-    SmartDashboard.putNumber(name, m_turningPIDController.getSetpoint().velocity);
+
+    
+    SmartDashboard.putNumber(name, pidController[pidControllerKey].getPositionError());
+    SmartDashboard.putNumber(name + "v", pidController[pidControllerKey].getVelocityError());
+    SmartDashboard.putNumber(name + " setpoint", pidController[pidControllerKey].getSetpoint().position);
+    // SmartDashboard.putNumber(name + " setpoint", desiredState.angle.getRadians());
+    // SmartDashboard.putNumber(name, pidController[pidControllerKey].getSetpoint().velocity);
+  }
+
+  private double getEncoderValue(){
+    return m_turningEncoder.getAbsolutePosition().getValueAsDouble() * Math.PI * 2; 
+  }
+  private double getEncoderValueDegrees(){
+    return m_turningEncoder.getAbsolutePosition().getValueAsDouble() * 360 + 180; 
   }
 }
