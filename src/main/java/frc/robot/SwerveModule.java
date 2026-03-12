@@ -38,8 +38,6 @@ public class SwerveModule {
   // Gains are for example purposes only - must be determined for your own robot!
   private final PIDController m_drivePIDController = new PIDController(1, 0, 0);
 
-  // pidControllerKey[pidControllerKey]
-
   private final ProfiledPIDController[] pidController = {
     // Front Left
     new ProfiledPIDController(
