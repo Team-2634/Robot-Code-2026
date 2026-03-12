@@ -156,7 +156,7 @@ public class SwerveModule {
    * @param desiredState Desired state with speed and angle.
    */
   public void setDesiredState(SwerveModuleState desiredState, int pidControllerKey, String name) {
-    var encoderRotation = new Rotation2d(getEncoderValueDegrees() );
+    var encoderRotation = new Rotation2d(getEncoderValue());
 
     // Optimize the reference state to avoid spinning further than 90 degrees
     desiredState.optimize(encoderRotation);
